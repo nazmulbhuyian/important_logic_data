@@ -21,6 +21,8 @@ export const Data = mongoose.model('datas', dataSchema);
 
 
 
+
+
 //  in typescript
 import { Schema, model, Document, Types } from 'mongoose';
 
@@ -86,7 +88,7 @@ export const findOneRegUserServices = async (userData) => {
     // const FindUser2 = await Address.findOne({ _id: FindUser?.address });
     // return {FindUser, FindUser2};
 
-    const allDataWithAddresses = await Data.findOne({ name: "nazmul2" }).populate('address');
+    const allDataWithAddresses = await Data.findOne({ name: "nazmul2" }).populate('addresss');
     return allDataWithAddresses;
 }
 
