@@ -478,3 +478,129 @@ app.post('/products', async (req, res) => {
     }
   });
 
+// 4th approach
+const mongoose = require('mongoose');
+
+const productSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  brand: {
+    type: String,
+    required: true,
+  },
+  sku: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  variations: [
+    {
+      attributes: {
+        type: Map,
+        of: new mongoose.Schema({
+          attribute: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Attribute', // Reference to the Attribute table
+            required: true,
+          },
+          value: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'AttributeValue', // Reference to the AttributeValue table
+            required: true,
+          }
+        })
+      },
+      price: {
+        type: Number,
+        required: true,
+      },
+      discount_price: {
+        type: Number,
+      },
+      image_url: {
+        type: String,
+        required: true,
+      },
+    }
+  ],
+}, { timestamps: true });
+
+const Product = mongoose.model('Product', productSchema);
+
+module.exports = Product;
+
+app.get('/products/:id', async (req, res) => {
+    try {
+      const product = await Product.findById(req.params.id).populate({
+        path: 'variations.attributes.$*',
+        populate: [
+          { path: 'attribute', model: 'Attribute' },        // Populate Attribute
+          { path: 'value', model: 'AttributeValue' }        // Populate AttributeValue
+        ]
+      });
+  
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+  
+      res.status(200).json(product);
+    } catch (error) {
+      res.status(500).json({ error: 'Server error', details: error.message });
+    }
+  });
+  
+
+// or
+const mongoose = require('mongoose');
+
+const productSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  brand: {
+    type: String,
+    required: true,
+  },
+  sku: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  variations: [
+    {
+      attributes: {
+        type: Map,
+        of: {
+          attribute: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Attribute', // Reference to the Attribute table
+            required: true,
+          },
+          value: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'AttributeValue', // Reference to the AttributeValue table
+            required: true,
+          }
+        }
+      },
+      price: {
+        type: Number,
+        required: true,
+      },
+      discount_price: {
+        type: Number,
+      },
+      image_url: {
+        type: String,
+        required: true,
+      },
+    }
+  ],
+}, { timestamps: true });
+
+const Product = mongoose.model('Product', productSchema);
+
+module.exports = Product;
